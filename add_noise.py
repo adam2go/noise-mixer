@@ -14,31 +14,46 @@ import sys
 import os
 
 '''
-    Calculate wave file energy
+    Description: Calculate wave file energy
     Inputs:
         mat: wav data matrix
     Outputs:
-        wav energy
+        wav file energy
 '''
 def energy(mat):
     return float(sum([x * x for x in mat])) / len(mat)
 
 '''
-
+    Description: Mix origin clear wav and noise wav
+    Inputs:
+        mat: clear wav data matrix
+        noise: noise wav data matrix
+        pos: noise wav frame's position
+        scale: scale of clear and noise wav energy
+    Outputs:
+        pos: current noise matrix index
+        ret: mixed wav matrix
 '''
 def mix(mat, noise, pos, scale):
-    new_mat = []
-    l_noise = len(noise)
-    for index in xrange(len(mat)):
-        frame = mat[index]
-        new_frame = int(frame + scale * noise[pos])
-        new_frame = max(min(new_frame, 32767), -32768)
-        new_mat.append(new_frame)
-        pos += l_noise
-        if pos == l_noise:
+    ret = []
+    l = len(noise)
+    for i in xrange(len(mat)):
+        frm = mat[i]
+        tmp = int(frm + scale * noise[pos])
+        tmp = max(min(tmp, 32767), -32768)
+        ret.append(tmp)
+        pos += l
+        if pos == l:
             pos =0
-    return (pos, new_mat)
+    return (pos, ret)
 
+'''
+    Description: Calculate noise type with given parameters
+    Inputs:
+        params: noise prior parameters
+    Outputs:
+        noise type
+'''
 def dirichlet(params):
     samples = [random.gammavariate(x, 1) if x > 0 else 0. for x in params]
     samples = [x / sum(samples) for x in samples]
@@ -46,16 +61,25 @@ def dirichlet(params):
         samples[x] += samples[x - 1]
     return bisect.bisect_left(samples, random.random())
 
-def num_samples(mat):
-    return len(mat)
-
-def scp(scp_filename):
-    with open(scp_filename, 'r') as file:
+'''
+    Description: yield wav tag and wav path from scp file
+    Inputs:
+        fname: scp file's name, scp file should like this:
+            ...
+            SPK0001_1 /data2/SPK_0001/SPK0001_1.wav
+            SPK0001_2 /data2/SPK_0001/SPK0001_2.wav
+            SPK0001_3 /data2/SPK_0001/SPK0001_3.wav
+            ...
+    Outputs:
+        tuple of wav tag and wav path
+'''
+def scp(fname):
+    with open(fname, 'r') as file:
         for line in file:
             yield tuple(line.strip().split())
 
-def wave_mat(wav_filename):
-    with wave.open(wav_filename, 'r') as wav:
+def wave_mat(fname):
+    with wave.open(fname, 'r') as wav:
         num = wav.getnframes()
         data = wav.readframes(num)
         return list(struct.unpack('{}h'.format(num), data))
@@ -135,23 +159,19 @@ def main():
                 output(tag, mat)
         else:
             p, n = noises[type]
-            print("p: {}".format(p))
+            #print("p: {}".format(p))
             if p + len(mat) > len(n):
                 noise_energies[type] = energy(n[p::] + n[0:len(n) - p:])
             else:
                 noise_energies[type] = energy(n[p:p + len(mat):])
-            print("noise: {}  noise_energy: {}  type: {}".format(noise, noise_energies[type], type))
+            #print("noise: {}  noise_energy: {}  type: {}".format(noise, noise_energies[type], type))
             scale = math.sqrt(noise / noise_energies[type])
-            print("scale: {}".format(scale))
-            logging.debug('noise scale: %f', scale)
+            #print("scale: {}".format(scale))
+            #logging.debug('noise scale: %f', scale)
             pos, result = mix(mat, n, p, scale)
             noises[type] = (pos, n)
             if args.wavdir != 'NULL':
-                tmp1 = fname.replace('.wav', '')
-                tmp2 = args.wavdir.split('/')[-1]
-                newname = tag + '_' + tmp2
-                print("%s" % (newname))
-                output_wave_file(args.wavdir, tag, result)
+                output_wave_file(args.wavdir, fname, result)
             else:
                 output(tag, result)
 

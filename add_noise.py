@@ -38,12 +38,12 @@ def energy(mat):
 def mix(mat, noise, pos, scale):
     ret = []
     l = len(noise)
-    for i in range(len(mat)):
+    for i in xrange(len(mat)):
         frm = mat[i]
         tmp = int(frm + scale * noise[pos])
         tmp = max(min(tmp, 32767), -32768)
         ret.append(tmp)
-        pos += l
+        pos += 1
         if pos == l:
             pos =0
     return (pos, ret)
@@ -58,7 +58,7 @@ def mix(mat, noise, pos, scale):
 def dirichlet(params):
     samples = [random.gammavariate(x, 1) if x > 0 else 0. for x in params]
     samples = [x / sum(samples) for x in samples]
-    for x in range(1, len(samples)):
+    for x in xrange(1, len(samples)):
         samples[x] += samples[x - 1]
     return bisect.bisect_left(samples, random.random())
 
@@ -87,10 +87,11 @@ def scp(fname):
         matrix of the wav file
 '''
 def wave_mat(fname):
-    with wave.open(fname, 'r') as wav:
-        num = wav.getnframes()
-        data = wav.readframes(num)
-        return list(struct.unpack('{}h'.format(num), data))
+    wav = wave.open(fname, 'r')
+    num = wav.getnframes()
+    data = wav.readframes(num)
+    wav.close()
+    return list(struct.unpack('{}h'.format(num), data))
 
 '''
     Description: generate wav header
@@ -159,7 +160,6 @@ def main():
     parser.add_option('--noise_level', type=float)
     (args, dummy) = parser.parse_args()
     random.seed(args.seed)
-    logging.debug('{}'.format(args.noise_prior))
     params = [float(x) for x in args.noise_prior.split(',')]
 
     if args.verbose:

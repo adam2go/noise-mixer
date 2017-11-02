@@ -23,7 +23,7 @@ for noise_type in white car cafe; do
   echo "sigma0=${sigma0} noise_level=${noise_level} prior=${noise_prior}"
   mkdir -p $output_dir
   python add_noise.py --seed $seed --sigma0 $sigma0 --noise_level $noise_level   \
-	  --verbose $verbose --noise_prior=$noise_prior --noise_src $noise_scp  \
+	  --verbose $verbose --noise_prior $noise_prior --noise_src $noise_scp  \
 	  --wav_src $wav_scp --wav_dir $output_dir || exit
 done
 

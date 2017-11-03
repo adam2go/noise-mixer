@@ -14,7 +14,7 @@ It's easy to generate audio file(wav file) by noise-mixer, what you need to do i
 
 sample like:
 
-![noise_scp](/img/noise.jpg)
+![noise_scp](/img/noise.JPG)
 
 2. Perpare origin clear wav list in this format:
 
@@ -22,7 +22,7 @@ sample like:
 
 sample like:
 
-![wav_scp](/img/wav.jpg)
+![wav_scp](/img/wav.JPG)
 
 3. Edit `produce.sh` to change your output directory, noise_home, wav_home and noise level and so on. 
 4. Then run `produce.sh`, wait a moment for the output.

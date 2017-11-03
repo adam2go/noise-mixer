@@ -9,7 +9,7 @@ noise_prior_cafe="0,0,0,10"      #define cafe noise to sample. [S_clean, S_white
 declare -A noise_prior_box=(["white"]=${noise_prior_white} ["car"]=${noise_prior_car} ["cafe"]=${noise_prior_cafe})
 
 seed=32
-sigma0=0                            #ensure the SNR is sampled as the value exacted defined by noise_level
+sigma0=0                         #ensure the SNR is sampled as the value exacted defined by noise_level
 verbose=0
 noise_level=20
 wav_scp="`pwd`/wav_home.scp"

@@ -8,10 +8,10 @@ noise_prior_car="0,0,10,0"       #define car noise to sample. [S_clean, S_white,
 noise_prior_cafe="0,0,0,10"      #define cafe noise to sample. [S_clean, S_white, S_car, S_cafe]
 declare -A noise_prior_box=(["white"]=${noise_prior_white} ["car"]=${noise_prior_car} ["cafe"]=${noise_prior_cafe})
 
-seed=32
+seed=32                          #random seed
 sigma0=0                         #ensure the SNR is sampled as the value exacted defined by noise_level
 verbose=0
-noise_level=20
+noise_level=20                   #define noise level, more smaller more loudly noise will be mixed
 wav_scp="`pwd`/wav_home.scp"
 noise_scp="`pwd`/noise_home.scp"
 
